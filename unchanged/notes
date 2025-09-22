@@ -1,0 +1,6 @@
+Monday 9-22-25
+
+take jun's marbl_interior_tendency_mod.F90 that works with CESM 2.1.5
+
+modify it to scavenge DOC and DOCr in the deep ocean 
+
