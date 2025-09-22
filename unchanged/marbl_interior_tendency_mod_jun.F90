@@ -3770,7 +3770,9 @@ subroutine compute_grazing(km, Tfunc_zoo, zooplankton_local, zooplankton_derived
     integer  :: k, auto_ind, zoo_ind, n
     real(r8) :: auto_sum
     real(r8) :: o2_production_denom
-
+    real(r8) :: DOC_total, DOC_frac, DOCr_frac
+    real(r8) :: DOC_scavenge_flux, DOC_scavenge, DOCr_scavenge
+    real(r8), parameter :: parm_DOC_scavenge_eff = 0.5_r8  ! mol DOC removed per mol FeLig1 scavenged
 
     !-----------------------------------------------------------------------
 
@@ -3966,9 +3968,31 @@ subroutine compute_grazing(km, Tfunc_zoo, zooplankton_local, zooplankton_derived
         !  from sinking remin small fraction to refractory pool
         !-----------------------------------------------------------------------
 
-        interior_tendencies(doc_ind,k) = DOC_prod(k) * (c1 - DOCprod_refract) - DOC_remin(k)
+        ! Compute total DOC pool
+        DOC_total = tracer_local(doc_ind,k) + tracer_local(docr_ind,k)
 
-        interior_tendencies(docr_ind,k) = DOC_prod(k) * DOCprod_refract - DOCr_remin(k) + (POC_remin(k) * POCremin_refract)
+        ! Compute scavenging flux from FeLig1
+        ! DOC_scavenge_flux = yps * FeLig1 * FeLig_scavenge_rate * parm_DOC_scavenge_eff
+
+        ! Partition DOC and DOCr scavenging
+        if (DOC_total > c0) then
+          DOC_frac  = tracer_local(doc_ind,k)  / DOC_total
+          DOCr_frac = tracer_local(docr_ind,k) / DOC_total
+        else
+          DOC_frac = 0.5_r8
+          DOCr_frac = 0.5_r8
+        endif
+
+        ! Compute DOC scavenging flux scaled by Fe from vents
+        DOC_scavenge_flux = feventflux(k) * parm_DOC_scavenge_eff
+
+        DOC_scavenge  = DOC_scavenge_flux * DOC_frac
+        DOCr_scavenge = DOC_scavenge_flux * DOCr_frac
+
+
+        interior_tendencies(doc_ind,k) = DOC_prod(k) * (c1 - DOCprod_refract) - DOC_remin(k)-DOC_scavenge
+
+        interior_tendencies(docr_ind,k) = DOC_prod(k) * DOCprod_refract - DOCr_remin(k) + (POC_remin(k) * POCremin_refract) - DOCr_scavenge
 
         interior_tendencies(don_ind,k) = (DON_prod(k) * (c1 - DONprod_refract)) - DON_remin(k) &
                                        - DON_loss_N_bal(k)
