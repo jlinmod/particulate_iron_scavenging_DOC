@@ -3738,6 +3738,8 @@ subroutine compute_grazing(km, Tfunc_zoo, zooplankton_local, zooplankton_derived
        P_CaCO3_remin, P_CaCO3_ALT_CO2_remin, other_remin, tracer_local, &
        o2_consumption_scalef, o2_production, o2_consumption, interior_tendencies)
 
+    use marbl_settings_mod, only : remin_to_Lig
+
     integer,                              intent(in)    :: km
     type(marbl_tracer_index_type),        intent(in)    :: marbl_tracer_indices
     type(autotroph_derived_terms_type),   intent(in)    :: autotroph_derived_terms
@@ -3966,9 +3968,9 @@ subroutine compute_grazing(km, Tfunc_zoo, zooplankton_local, zooplankton_derived
         !  from sinking remin small fraction to refractory pool
         !-----------------------------------------------------------------------
 
-        interior_tendencies(doc_ind,k) = DOC_prod(k) * (c1 - DOCprod_refract) - DOC_remin(k)
+        interior_tendencies(doc_ind,k) = DOC_prod(k) * (c1 - DOCprod_refract) - DOC_remin(k) - (DOC_prod(k) * remin_to_Lig)
 
-        interior_tendencies(docr_ind,k) = DOC_prod(k) * DOCprod_refract - DOCr_remin(k) + (POC_remin(k) * POCremin_refract)
+        interior_tendencies(docr_ind,k) = DOC_prod(k) * DOCprod_refract - DOCr_remin(k) + (POC_remin(k) * POCremin_refract) - (DOC_prod(k) * DOCprod_refract * remin_to_Lig)
 
         interior_tendencies(don_ind,k) = (DON_prod(k) * (c1 - DONprod_refract)) - DON_remin(k) &
                                        - DON_loss_N_bal(k)
