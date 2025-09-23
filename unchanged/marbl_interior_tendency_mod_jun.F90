@@ -3736,7 +3736,7 @@ subroutine compute_grazing(km, Tfunc_zoo, zooplankton_local, zooplankton_derived
        zooplankton_derived_terms, dissolved_organic_matter, nitrif, denitrif, denitrif_C_N, &
        sed_denitrif, Fe_scavenge, Lig_prod, Lig_loss, P_iron_remin, POC_remin, POP_remin, PON_remin, P_SiO2_remin, &
        P_CaCO3_remin, P_CaCO3_ALT_CO2_remin, other_remin, tracer_local, &
-       o2_consumption_scalef, o2_production, o2_consumption, interior_tendencies)
+       o2_consumption_scalef, o2_production, o2_consumption, interior_tendencies, DOC_prod)
 
     use marbl_settings_mod, only : remin_to_Lig
 
@@ -3765,6 +3765,7 @@ subroutine compute_grazing(km, Tfunc_zoo, zooplankton_local, zooplankton_derived
     real(r8),                             intent(out)   :: o2_production(km)
     real(r8),                             intent(out)   :: o2_consumption(km)
     real(r8),                             intent(inout) :: interior_tendencies(marbl_tracer_indices%total_cnt, km)
+    real(r8),                           intent(in)  :: DOC_prod(km)
 
     !-----------------------------------------------------------------------
     !  local variables
