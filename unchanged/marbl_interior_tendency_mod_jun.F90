@@ -3831,6 +3831,9 @@ subroutine compute_grazing(km, Tfunc_zoo, zooplankton_local, zooplankton_derived
          DOPr_remin      => dissolved_organic_matter%DOPr_remin(:),     & ! remineralization of DOPr
          DOP_loss_P_bal  => dissolved_organic_matter%DOP_loss_P_bal(:), & ! DOP loss, due to P budget balancing
 
+         DOC_loc         => tracer_local(marbl_tracer_indices%doc_ind,:),  &
+         DOCr_loc        => tracer_local(marbl_tracer_indices%docr_ind,:), &
+
          O2_loc            => tracer_local(marbl_tracer_indices%O2_ind, :), &
          po4_ind           => marbl_tracer_indices%po4_ind,                 &
          no3_ind           => marbl_tracer_indices%no3_ind,                 &
@@ -3972,7 +3975,7 @@ subroutine compute_grazing(km, Tfunc_zoo, zooplankton_local, zooplankton_derived
         !-----------------------------------------------------------------------
 
         ! Compute total DOC pool
-        DOC_total = tracer_local(doc_ind,k) + tracer_local(docr_ind,k)
+        DOC_total = DOC_loc(k) + DOCr_loc(k)
 
         ! Compute scavenging flux from FeLig1
         ! DOC_scavenge_flux = yps * FeLig1 * FeLig_scavenge_rate * parm_DOC_scavenge_eff
