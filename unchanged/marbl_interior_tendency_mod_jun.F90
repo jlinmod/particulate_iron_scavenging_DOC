@@ -3981,9 +3981,9 @@ subroutine compute_grazing(km, Tfunc_zoo, zooplankton_local, zooplankton_derived
         ! DOC_scavenge_flux = yps * FeLig1 * FeLig_scavenge_rate * parm_DOC_scavenge_eff
 
         ! Partition DOC and DOCr scavenging
-        if (DOC_total > c0) then
-          DOC_frac  = tracer_local(doc_ind,k)  / DOC_total
-          DOCr_frac = tracer_local(docr_ind,k) / DOC_total
+        if (DOC_total .gt. c0) then
+          DOC_frac  = DOC_loc(k) / DOC_total
+          DOCr_frac = DOCr_loc(k) / DOC_total
         else
           DOC_frac = 0.5_r8
           DOCr_frac = 0.5_r8
