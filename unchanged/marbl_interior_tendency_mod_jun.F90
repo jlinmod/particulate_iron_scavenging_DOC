@@ -3732,13 +3732,14 @@ subroutine compute_grazing(km, Tfunc_zoo, zooplankton_local, zooplankton_derived
 
   !***********************************************************************
 
-  subroutine compute_local_tendencies(km, marbl_tracer_indices, autotroph_derived_terms, &
+  subroutine compute_local_tendencies(km, domain, marbl_tracer_indices, autotroph_derived_terms, &
        zooplankton_derived_terms, dissolved_organic_matter, nitrif, denitrif, denitrif_C_N, &
        sed_denitrif, Fe_scavenge, Lig_prod, Lig_loss, P_iron_remin, POC_remin, POP_remin, PON_remin, P_SiO2_remin, &
        P_CaCO3_remin, P_CaCO3_ALT_CO2_remin, other_remin, tracer_local, &
-       o2_consumption_scalef, o2_production, o2_consumption, interior_tendencies)
+       o2_consumption_scalef, o2_production, o2_consumption, interior_tendencies, feventflux)
 
     integer,                              intent(in)    :: km
+    type(marbl_domain_type)           , intent(in)    :: domain
     type(marbl_tracer_index_type),        intent(in)    :: marbl_tracer_indices
     type(autotroph_derived_terms_type),   intent(in)    :: autotroph_derived_terms
     type(zooplankton_derived_terms_type), intent(in)    :: zooplankton_derived_terms
@@ -3763,6 +3764,8 @@ subroutine compute_grazing(km, Tfunc_zoo, zooplankton_local, zooplankton_derived
     real(r8),                             intent(out)   :: o2_production(km)
     real(r8),                             intent(out)   :: o2_consumption(km)
     real(r8),                             intent(inout) :: interior_tendencies(marbl_tracer_indices%total_cnt, km)
+    real (r8)         		       , intent(in)    :: feventflux(domain%km)          ! vent Fe input
+
 
     !-----------------------------------------------------------------------
     !  local variables
@@ -3772,7 +3775,7 @@ subroutine compute_grazing(km, Tfunc_zoo, zooplankton_local, zooplankton_derived
     real(r8) :: o2_production_denom
     real(r8) :: DOC_total, DOC_frac, DOCr_frac
     real(r8) :: DOC_scavenge_flux, DOC_scavenge, DOCr_scavenge
-    real(r8), parameter :: parm_DOC_scavenge_eff = 0.5_r8  ! mol DOC removed per mol FeLig1 scavenged
+    real(r8), parameter :: parm_DOC_scavenge_eff = 0.05_r8  ! mol DOC removed per mol FeLig1 scavenged
 
     !-----------------------------------------------------------------------
 
