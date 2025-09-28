@@ -1,4 +1,0 @@
-i upload marbl_interior_tendency_mod.F90 from my_cesm_sandbox_80yr 
-
-need to parameterize DOC_loss_tosed(k) to remove DOCr.
-
