@@ -3567,7 +3567,7 @@ contains
         interior_tendencies(doc_ind,k) = DOC_prod(k) * (c1 - DOCprod_refract) - DOC_remin(k)
 
         interior_tendencies(docr_ind,k) = DOC_prod(k) * DOCprod_refract - DOCr_remin(k) + (POC_remin(k) * POCremin_refract) & 
-                                        - ((1e-6_r8 / parm_Red_Fe_C) * 0.01 * P_iron%to_floor)
+                                        - ((1e-6_r8 / parm_Red_Fe_C) * 0.01_r8 * P_iron%to_floor)
 
         interior_tendencies(don_ind,k) = (DON_prod(k) * (c1 - DONprod_refract)) - DON_remin(k)
 
