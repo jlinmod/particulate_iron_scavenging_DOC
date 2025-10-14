@@ -1,0 +1,30 @@
+Use P_iron_FLUX_in (Particulate iron into cell)
+  mmol/m^3 cm/s
+convert cm to m by multiplying 1 m/100 cm
+  mmol/m^3 m/s = mmol/m^2/s
+
+1) compute net flux thru the laters 
+  F_"net" =F_"top" - F_"bottom" 
+  
+2) estimate the layer inventory
+  Σ_"layer" =C_"layer" * Δz
+    C_"layer" = 1 mmol/m^3
+    Δz = m
+    Σ_"layer" =  mmol/m^2
+
+3) define the inverse time operator
+  λ_"layer" = F_"net" / Σ_"layer"  
+  λ_"layer" = 1/sec
+
+4) write to new diagnostics to subtract from DOC & DOCr
+DOC_scav= λ_"layer" * DOC_loc
+DOCr_scav= λ_"layer" * DOCr_loc
+
+DOC = ....-DOC_scav
+DOCr= ....-DOCr_scav
+
+do this in marbl_interior_tendency_mod.F90
+
+
+  later on
+    multiply by 0.01 and stick it in a kmt conditional
