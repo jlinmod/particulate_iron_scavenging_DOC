@@ -3380,6 +3380,15 @@ contains
     !-----------------------------------------------------------------------
     !  local variables
     !-----------------------------------------------------------------------
+    real (r8) :: &
+        ztop,               & ! depth of top of layer
+        flux_top, flux_bot, flux_net & ! total (sflux+hflux) particulate fluxes at top and bottom of layer
+        sigma_i,             & !unit conc times depth (delta_z)
+        lambda_i,             & ! flux_net/sigma_i
+        DOC_scav,             & ! DOC removed by iron particles 
+        DOCr_scav                ! DOCr removed by iron particles
+
+
     integer  :: k, auto_ind, zoo_ind, n
     real(r8) :: auto_sum
     !-----------------------------------------------------------------------
@@ -3448,7 +3457,9 @@ contains
          dop_ind           => marbl_tracer_indices%dop_ind,                 &
          dopr_ind          => marbl_tracer_indices%dopr_ind,                &
          donr_ind          => marbl_tracer_indices%donr_ind,                &
-         docr_ind          => marbl_tracer_indices%docr_ind                 &
+         docr_ind          => marbl_tracer_indices%docr_ind,                 &
+         delta_z                  => domain%delta_z,                                   &
+
          )
 
       do k=1, km
@@ -3563,9 +3574,30 @@ contains
         !  from sinking remin small fraction to refractory pool
         !-----------------------------------------------------------------------
 
-        interior_tendencies(doc_ind,k) = DOC_prod(k) * (c1 - DOCprod_refract) - DOC_remin(k)
 
-        interior_tendencies(docr_ind,k) = DOC_prod(k) * DOCprod_refract - DOCr_remin(k) + (POC_remin(k) * POCremin_refract)
+        if (k .gt. 1) then
+          ztop = zw(k-1)
+        else
+          ztop = c0
+        end if
+
+        !conver cm to m for mmol/m^3 cm/s
+        flux_top = P_iron%sflux_in(k) * 0.01_r8 + P_iron%hflux_in(k) * 0.01_r8
+        flux_bot = P_iron%sflux_out(k) * 0.01_r8 + P_iron%hflux_out(k) * 0.01_r8
+        flux_net = flux_top - flux_bot
+
+
+        sigma_i = c1 * delta_z(k)   ! unit concentration of 1 mmol/m^3 times depth (m) = mmol/m^2
+
+        lambda_i = flux_net/sigma_i
+
+        DOC_scav = lambda_i * DOC_loc(k)
+
+        DOCr_scav = lambda_i * DOCr_loc(k)
+
+        interior_tendencies(doc_ind,k) = DOC_prod(k) * (c1 - DOCprod_refract) - DOC_remin(k) - DOC_scav
+
+        interior_tendencies(docr_ind,k) = DOC_prod(k) * DOCprod_refract - DOCr_remin(k) + (POC_remin(k) * POCremin_refract) - DOCr_scav
 
         interior_tendencies(don_ind,k) = (DON_prod(k) * (c1 - DONprod_refract)) - DON_remin(k)
 
