@@ -404,7 +404,7 @@ contains
          tracer_local(:,:), &
          o2_consumption_scalef(:), &
          o2_production(:), o2_consumption(:), &
-         interior_tendencies(:,:))
+         interior_tendencies(:,:), P_iron)
 
     ! Compute interior diagnostics
     call marbl_diagnostics_interior_tendency_compute(       &
@@ -3350,13 +3350,14 @@ contains
        zooplankton_derived_terms, dissolved_organic_matter, nitrif, denitrif, sed_denitrif, &
        Fe_scavenge, Lig_prod, Lig_loss, P_iron_remin, POC_remin, POP_remin, P_SiO2_remin, &
        P_CaCO3_remin, P_CaCO3_ALT_CO2_remin, other_remin, PON_remin, tracer_local, &
-       o2_consumption_scalef, o2_production, o2_consumption, interior_tendencies)
+       o2_consumption_scalef, o2_production, o2_consumption, interior_tendencies, P_iron)
 
     integer,                              intent(in)    :: km
     type(marbl_tracer_index_type),        intent(in)    :: marbl_tracer_indices
     type(autotroph_derived_terms_type),   intent(in)    :: autotroph_derived_terms
     type(zooplankton_derived_terms_type), intent(in)    :: zooplankton_derived_terms
     type(dissolved_organic_matter_type),  intent(in)    :: dissolved_organic_matter
+    type(column_sinking_particle_type) , intent(inout) :: P_iron          ! base units = nmol Fe
     real(r8),                             intent(in)    :: nitrif(km)
     real(r8),                             intent(in)    :: denitrif(km)
     real(r8),                             intent(in)    :: sed_denitrif(km)
@@ -3381,12 +3382,12 @@ contains
     !  local variables
     !-----------------------------------------------------------------------
     real (r8) :: &
-        ztop,               & ! depth of top of layer
-        flux_top, flux_bot, flux_net & ! total (sflux+hflux) particulate fluxes at top and bottom of layer
-        sigma_i,             & !unit conc times depth (delta_z)
-        lambda_i,             & ! flux_net/sigma_i
-        DOC_scav,             & ! DOC removed by iron particles 
-        DOCr_scav                ! DOCr removed by iron particles
+        ztop,                                & ! depth of top of layer
+        flux_top, flux_bot, flux_net,        & ! total (sflux+hflux) particulate fluxes at top and bottom of layer
+        sigma_i,                             & ! unit conc times depth (delta_z)
+        lambda_i,                            & ! flux_net/sigma_i
+        DOC_scav,                            & ! DOC removed by iron particles 
+        DOCr_scav                              ! DOCr removed by iron particles
 
 
     integer  :: k, auto_ind, zoo_ind, n
@@ -3458,8 +3459,7 @@ contains
          dopr_ind          => marbl_tracer_indices%dopr_ind,                &
          donr_ind          => marbl_tracer_indices%donr_ind,                &
          docr_ind          => marbl_tracer_indices%docr_ind,                 &
-         delta_z                  => domain%delta_z,                                   &
-
+         delta_z           => domain%delta_z
          )
 
       do k=1, km
@@ -3574,21 +3574,12 @@ contains
         !  from sinking remin small fraction to refractory pool
         !-----------------------------------------------------------------------
 
-
-        if (k .gt. 1) then
-          ztop = zw(k-1)
-        else
-          ztop = c0
-        end if
-
-        !conver cm to m for mmol/m^3 cm/s
+        !conver cm to m for mmol/m^3 cm/s with 0.01 (1 m/100 cm)
         flux_top = P_iron%sflux_in(k) * 0.01_r8 + P_iron%hflux_in(k) * 0.01_r8
         flux_bot = P_iron%sflux_out(k) * 0.01_r8 + P_iron%hflux_out(k) * 0.01_r8
         flux_net = flux_top - flux_bot
 
-
         sigma_i = c1 * delta_z(k)   ! unit concentration of 1 mmol/m^3 times depth (m) = mmol/m^2
-
         lambda_i = flux_net/sigma_i
 
         DOC_scav = lambda_i * DOC_loc(k)
