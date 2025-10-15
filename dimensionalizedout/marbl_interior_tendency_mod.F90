@@ -3442,6 +3442,8 @@ contains
          DOP_loss_P_bal  => dissolved_organic_matter%DOP_loss_P_bal(:), & ! DOP loss, due to P budget balancing
 
          O2_loc            => tracer_local(marbl_tracer_indices%O2_ind, :), &
+         DOC_loc         => tracer_local(marbl_tracer_indices%doc_ind,:),  &
+         DOCr_loc        => tracer_local(marbl_tracer_indices%docr_ind,:), &
          po4_ind           => marbl_tracer_indices%po4_ind,                 &
          no3_ind           => marbl_tracer_indices%no3_ind,                 &
          sio3_ind          => marbl_tracer_indices%sio3_ind,                &
@@ -3459,7 +3461,7 @@ contains
          dopr_ind          => marbl_tracer_indices%dopr_ind,                &
          donr_ind          => marbl_tracer_indices%donr_ind,                &
          docr_ind          => marbl_tracer_indices%docr_ind,                 &
-         delta_z           => domain%delta_z
+         delta_z           => domain%delta_z                                &
          )
 
       do k=1, km
